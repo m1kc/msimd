@@ -24,9 +24,9 @@ void main(string[] args)
 
 	write("Starting server... ");
 	Socket server = new TcpSocket();
-    assert(server.isAlive);
-    server.bind(new InternetAddress(port));
-    server.listen(10);
+	assert(server.isAlive);
+	server.bind(new InternetAddress(port));
+	server.listen(10);
 	writeln("ok");
 	
 	while(true)
