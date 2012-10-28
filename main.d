@@ -41,19 +41,13 @@ void main(string[] args)
 
 void sendPacketToAccount(Packet p, string id)
 {
-	writeln("SPTA start");
-	writeln("МЯУ : ",connections.length);
 	foreach(Session s; connections)
 	{
-		writeln("SPTA: ",s.account);
 		if (s.account==id)
 		{
-			writeln("SPTA send");
 			writePacket(p, s.stream);
-			writeln("SPTA sent");
 		}
 	}
-	writeln("SPTA end");
 }
 
 void processPacket(Packet p, Session s)
@@ -93,7 +87,7 @@ void processPacket(Packet p, Session s)
 			assert(tmp.length==2);
 			string login = tmp[0];
 			string pass = tmp[1];
-			if (accountExists(login))
+			if (accountExists(login) || login=="SERVER")
 			{
 				writePacket(new Packet("SERVER", s.account, "fail", "register"), s.stream);
 			}
@@ -106,6 +100,38 @@ void processPacket(Packet p, Session s)
 		else if (p.type=="contacts-list")
 		{
 			writePacket(new Packet("SERVER", s.account, "contacts-list", getContactsAsIni(s.account)), s.stream);
+		}
+		else if (p.type=="contacts-add")
+		{
+			addContact(s.account, p.content);
+			writePacket(new Packet("SERVER", s.account, "success", "contacts-add"), s.stream);
+		}
+		else if (p.type=="contacts-rename")
+		{
+			assert(tmp.length==2);
+			string id1 = tmp[0];
+			string id2 = tmp[1];
+			if (contactExists(s.account, id1))
+			{
+				renameContact(s.account, id1, id2);
+				writePacket(new Packet("SERVER", s.account, "success", "contacts-rename"), s.stream);
+			}
+			else
+			{
+				writePacket(new Packet("SERVER", s.account, "fail", "contacts-rename"), s.stream);
+			}
+		}
+		else if (p.type=="contacts-remove")
+		{
+			if (contactExists(s.account, p.content))
+			{
+				removeContact(s.account, p.content);
+				writePacket(new Packet("SERVER", s.account, "success", "contacts-remove"), s.stream);
+			}
+			else
+			{
+				writePacket(new Packet("SERVER", s.account, "fail", "contacts-remove"), s.stream);
+			}			
 		}
 	}
 	else

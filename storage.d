@@ -27,3 +27,20 @@ Ku-Kluks-Klan=kkk
 ";
 
 }
+
+void addContact(string account, string id)
+{
+}
+
+bool contactExists(string account, string id)
+{
+	return true;
+}
+
+void renameContact(string account, string id1, string id2)
+{
+}
+
+void removeContact(string account, string id)
+{
+}
