@@ -14,8 +14,8 @@ To build msimd, just type:
     
 To run:
 
-    ./msimd
+    ./main
     
 msimd uses port 3215 by default. Override it with the `--port` option:
 
-    ./msimd --port 8080
+    ./main --port 8080
