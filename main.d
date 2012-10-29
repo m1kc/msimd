@@ -15,7 +15,7 @@ __gshared Session[] connections;
 void main(string[] args)
 {
 	writeln("msimd 1.0");
-	
+
 	ushort port = 3215;
 	getopt(args, "port|p", &port);
 	writeln("Using port ",port);
@@ -28,7 +28,7 @@ void main(string[] args)
 	server.bind(new InternetAddress(port));
 	server.listen(10);
 	writeln("ok");
-	
+
 	while(true)
 	{
 		Socket s = server.accept();
@@ -131,7 +131,38 @@ void processPacket(Packet p, Session s)
 			else
 			{
 				writePacket(new Packet("SERVER", s.account, "fail", "contacts-remove"), s.stream);
-			}			
+			}
+		}
+		else if (p.type=="contacts-groups-list")
+		{
+			writePacket(new Packet("SERVER", s.account, "contacts-groups-list", getGroupsAsString(s.account)), s.stream);
+		}
+		else if (p.type=="contacts-groups-rename")
+		{
+			assert(tmp.length==2);
+			string name1 = tmp[0];
+			string name2 = tmp[1];
+			if (groupExists(s.account, name1))
+			{
+				renameGroup(s.account, name1, name2);
+				writePacket(new Packet("SERVER", s.account, "success", "contacts-groups-rename"), s.stream);
+			}
+			else
+			{
+				writePacket(new Packet("SERVER", s.account, "fail", "contacts-groups-rename"), s.stream);
+			}
+		}
+		else if (p.type=="contacts-groups-remove")
+		{
+			if (groupExists(s.account, p.content))
+			{
+				removeGroup(s.account, p.content);
+				writePacket(new Packet("SERVER", s.account, "success", "contacts-groups-remove"), s.stream);
+			}
+			else
+			{
+				writePacket(new Packet("SERVER", s.account, "fail", "contacts-groups-remove"), s.stream);
+			}
 		}
 	}
 	else
@@ -157,7 +188,7 @@ private:
 	long uid;
 	string account;
 	bool loggedIn = false;
-	
+
 	void run()
 	{
 		while(true)

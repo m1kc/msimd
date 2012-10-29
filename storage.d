@@ -44,3 +44,21 @@ void renameContact(string account, string id1, string id2)
 void removeContact(string account, string id)
 {
 }
+
+string getGroupsAsString(string account)
+{
+	return "group1|group2";
+}
+
+bool groupExists(string account, string groupName)
+{
+	return true;
+}
+
+void renameGroup(string account, string name1, string name2)
+{
+}
+
+void removeGroup(string account, string groupName)
+{
+}
