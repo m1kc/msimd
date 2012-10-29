@@ -10,7 +10,7 @@ import std.stream;
 import std.random;
 import packet, storage;
 
-__gshared Session[] connections;
+__gshared synchronized Session[] connections;
 
 void main(string[] args)
 {
