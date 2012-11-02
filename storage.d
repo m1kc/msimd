@@ -1,19 +1,43 @@
+class Account
+{
+	string id,pass;
+
+	this(string id, string pass)
+	{
+		this.id = id;
+		this.pass = pass;
+	}
+}
+
+__gshared synchronized Account[] accounts;
+
 void initStorage()
 {
+	accounts ~= new Account("m1kc", "112");
+	accounts ~= new Account("Solkin", "112");
 }
 
 bool accountExists(string id)
 {
-	return true;
+	foreach(Account a; accounts)
+	{
+		if (a.id==id) return true;
+	}
+	return false;
 }
 
 bool passwordIsValid(string id, string pass)
 {
-	return true;
+	foreach(Account a; accounts)
+	{
+		if ((a.id==id)&&(a.pass==pass)) return true;
+	}
+	return false;
 }
 
 void createAccount(string id, string pass)
 {
+	accounts ~= new Account(id, pass);
 }
 
 string getContactsAsIni(string id)
