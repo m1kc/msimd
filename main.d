@@ -55,9 +55,21 @@ bool loginIsValid(string login)
 	if (login=="SERVER") return false;
 	foreach(char c; login)
 	{
-		if ( ((c>='a')&&(c<='z')) || (c=='-') || (c=='_') ) continue; else return false;
+		if ( ((c>='a')&&(c<='z')) || ((c>='0')&&(c<='9')) || (c=='-') || (c=='_') ) continue; else return false;
 	}
+	if (login[0]=='-' || login[$-1]=='-' || login[0]=='_' || login[$-1]=='_') return false;
 	return true;
+}
+unittest
+{
+	assert(loginIsValid("m1kc"));
+	assert(loginIsValid("solkin"));
+	assert(loginIsValid("sunduk-trava"));
+	assert(loginIsValid("well_done"));
+	assert(!loginIsValid("_m1kc"));
+	assert(!loginIsValid("-m1kc"));
+	assert(!loginIsValid("m1kc_"));
+	assert(!loginIsValid("m1kc-"));
 }
 
 void processPacket(Packet p, Session s)
@@ -65,10 +77,12 @@ void processPacket(Packet p, Session s)
 	string[] tmp = split(p.content, "|");
 	if (p.to=="SERVER")
 	{
+		// ping
 		if (p.type=="ping")
 		{
 			writePacket(new Packet("SERVER", s.account, "ping-response", ""), s.stream);
 		}
+		// auth
 		else if (p.type=="auth")
 		{
 			assert(tmp.length==2);
@@ -92,6 +106,7 @@ void processPacket(Packet p, Session s)
 				}
 			}
 		}
+		// register
 		else if (p.type=="register")
 		{
 			assert(tmp.length==2);
@@ -107,15 +122,18 @@ void processPacket(Packet p, Session s)
 				writePacket(new Packet("SERVER", s.account, "success", "register"), s.stream);
 			}
 		}
+		// contacts-list
 		else if (p.type=="contacts-list")
 		{
 			writePacket(new Packet("SERVER", s.account, "contacts-list", getContactsAsIni(s.account)), s.stream);
 		}
+		// contacts-add
 		else if (p.type=="contacts-add")
 		{
 			addContact(s.account, p.content);
 			writePacket(new Packet("SERVER", s.account, "success", "contacts-add"), s.stream);
 		}
+		// contacts-rename
 		else if (p.type=="contacts-rename")
 		{
 			assert(tmp.length==2);
@@ -130,6 +148,7 @@ void processPacket(Packet p, Session s)
 				writePacket(new Packet("SERVER", s.account, "fail", "contacts-rename"), s.stream);
 			}
 		}
+		// contacts-remove
 		else if (p.type=="contacts-remove")
 		{
 			if (removeContact(s.account, p.content))
@@ -141,10 +160,12 @@ void processPacket(Packet p, Session s)
 				writePacket(new Packet("SERVER", s.account, "fail", "contacts-remove"), s.stream);
 			}
 		}
+		// contacts-groups-list
 		else if (p.type=="contacts-groups-list")
 		{
 			writePacket(new Packet("SERVER", s.account, "contacts-groups-list", getGroupsAsString(s.account)), s.stream);
 		}
+		// contacts-groups-rename
 		else if (p.type=="contacts-groups-rename")
 		{
 			assert(tmp.length==2);
@@ -159,6 +180,7 @@ void processPacket(Packet p, Session s)
 				writePacket(new Packet("SERVER", s.account, "fail", "contacts-groups-rename"), s.stream);
 			}
 		}
+		// contacts-groups-remove
 		else if (p.type=="contacts-groups-remove")
 		{
 			if (removeGroup(s.account, p.content))

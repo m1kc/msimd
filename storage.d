@@ -16,7 +16,7 @@ __gshared synchronized Account[] accounts;
 void initStorage()
 {
 	createAccount("m1kc", "112");
-	createAccount("Solkin", "112");
+	createAccount("solkin", "112");
 }
 
 bool accountExists(string id)
