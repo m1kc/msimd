@@ -1,3 +1,5 @@
+import std.stdio;
+
 class Account
 {
 	string id,pass;
@@ -13,8 +15,8 @@ __gshared synchronized Account[] accounts;
 
 void initStorage()
 {
-	accounts ~= new Account("m1kc", "112");
-	accounts ~= new Account("Solkin", "112");
+	createAccount("m1kc", "112");
+	createAccount("Solkin", "112");
 }
 
 bool accountExists(string id)
@@ -38,6 +40,7 @@ bool passwordIsValid(string id, string pass)
 void createAccount(string id, string pass)
 {
 	accounts ~= new Account(id, pass);
+	writeln("Account created: " ~ id);
 }
 
 string getContactsAsIni(string id)
@@ -61,12 +64,14 @@ bool contactExists(string account, string id)
 	return true;
 }
 
-void renameContact(string account, string id1, string id2)
+bool renameContact(string account, string id1, string id2)
 {
+	return true;
 }
 
-void removeContact(string account, string id)
+bool removeContact(string account, string id)
 {
+	return true;
 }
 
 string getGroupsAsString(string account)
@@ -79,10 +84,12 @@ bool groupExists(string account, string groupName)
 	return true;
 }
 
-void renameGroup(string account, string name1, string name2)
+bool renameGroup(string account, string name1, string name2)
 {
+	return true;
 }
 
-void removeGroup(string account, string groupName)
+bool removeGroup(string account, string groupName)
 {
+	return true;
 }

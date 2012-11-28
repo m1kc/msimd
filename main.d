@@ -50,6 +50,16 @@ void sendPacketToAccount(Packet p, string id)
 	}
 }
 
+bool loginIsValid(string login)
+{
+	if (login=="SERVER") return false;
+	foreach(char c; login)
+	{
+		if ( ((c>='a')&&(c<='z')) || (c=='-') || (c=='_') ) continue; else return false;
+	}
+	return true;
+}
+
 void processPacket(Packet p, Session s)
 {
 	string[] tmp = split(p.content, "|");
@@ -70,7 +80,7 @@ void processPacket(Packet p, Session s)
 			}
 			else
 			{
-				if (accountExists(login) && passwordIsValid(login, pass))
+				if (passwordIsValid(login, pass))
 				{
 					s.account = login;
 					s.loggedIn = true;
@@ -87,7 +97,7 @@ void processPacket(Packet p, Session s)
 			assert(tmp.length==2);
 			string login = tmp[0];
 			string pass = tmp[1];
-			if (accountExists(login) || login=="SERVER")
+			if (accountExists(login) || !loginIsValid(login))
 			{
 				writePacket(new Packet("SERVER", s.account, "fail", "register"), s.stream);
 			}
@@ -111,9 +121,8 @@ void processPacket(Packet p, Session s)
 			assert(tmp.length==2);
 			string id1 = tmp[0];
 			string id2 = tmp[1];
-			if (contactExists(s.account, id1))
+			if (renameContact(s.account, id1, id2))
 			{
-				renameContact(s.account, id1, id2);
 				writePacket(new Packet("SERVER", s.account, "success", "contacts-rename"), s.stream);
 			}
 			else
@@ -123,9 +132,8 @@ void processPacket(Packet p, Session s)
 		}
 		else if (p.type=="contacts-remove")
 		{
-			if (contactExists(s.account, p.content))
+			if (removeContact(s.account, p.content))
 			{
-				removeContact(s.account, p.content);
 				writePacket(new Packet("SERVER", s.account, "success", "contacts-remove"), s.stream);
 			}
 			else
@@ -142,9 +150,8 @@ void processPacket(Packet p, Session s)
 			assert(tmp.length==2);
 			string name1 = tmp[0];
 			string name2 = tmp[1];
-			if (groupExists(s.account, name1))
+			if (renameGroup(s.account, name1, name2))
 			{
-				renameGroup(s.account, name1, name2);
 				writePacket(new Packet("SERVER", s.account, "success", "contacts-groups-rename"), s.stream);
 			}
 			else
@@ -154,9 +161,8 @@ void processPacket(Packet p, Session s)
 		}
 		else if (p.type=="contacts-groups-remove")
 		{
-			if (groupExists(s.account, p.content))
+			if (removeGroup(s.account, p.content))
 			{
-				removeGroup(s.account, p.content);
 				writePacket(new Packet("SERVER", s.account, "success", "contacts-groups-remove"), s.stream);
 			}
 			else
