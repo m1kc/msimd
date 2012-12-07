@@ -1,4 +1,7 @@
 import std.stdio;
+import std.file;
+import std.string;
+import std.array;
 
 class Account
 {
@@ -15,8 +18,28 @@ __gshared synchronized Account[] accounts;
 
 void initStorage()
 {
-	createAccount("m1kc", "112");
-	createAccount("solkin", "112");
+	write("Reading storage... ");
+	if (exists("msimd.db"))
+	{
+		string t = readText("msimd.db");
+		string[] lines = t.splitLines();
+		foreach(string s; lines)
+		{
+			string[] tmp = s.split("|");
+			if (tmp[0]=="account")
+			{
+				accounts ~= new Account(tmp[1], tmp[2]);
+			}
+		}
+		writeln("ok");
+	}
+	else
+	{
+		writeln("msimd.db was not found, skipped");
+		// debug
+		createAccount("m1kc", "112");
+		createAccount("solkin", "112");
+	}
 }
 
 bool accountExists(string id)
@@ -40,6 +63,14 @@ bool passwordIsValid(string id, string pass)
 void createAccount(string id, string pass)
 {
 	accounts ~= new Account(id, pass);
+	synchronized
+	{
+		if (exists("msimd.db")) std.file.remove("msimd.db");
+		foreach(Account a; accounts)
+		{
+			append("msimd.db", "account|" ~ a.id ~ "|" ~ a.pass ~ "\n");
+		}
+	}
 	writeln("Account created: " ~ id);
 }
 
