@@ -7,6 +7,7 @@ An experimental mSIM server written in D.
 Requirements:
 
 * D compiler (dmd)
+* make
 
 To build msimd, just type:
 
