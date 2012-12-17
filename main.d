@@ -27,6 +27,7 @@ void main(string[] args)
 	assert(server.isAlive);
 	server.bind(new InternetAddress(port));
 	server.listen(10);
+	scope(exit) server.close();
 	writeln("ok");
 
 	while(true)
@@ -130,7 +131,8 @@ void processPacket(Packet p, Session s)
 		// contacts-add
 		else if (p.type=="contacts-add")
 		{
-			addContact(s.account, p.content);
+			assert(tmp.length==3);
+			addContact(s.account, tmp[0], tmp[1], tmp[2]);
 			writePacket(new Packet("SERVER", s.account, "success", "contacts-add"), s.stream);
 		}
 		// contacts-rename
