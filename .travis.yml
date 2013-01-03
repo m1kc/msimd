@@ -1,9 +1,9 @@
 language: cpp
 script:
  - make dmd
- - ./sfn -v
+ #- ./msimd -v
  #- make gdc
- #- ./sfn -v
+ #- ./msimd -v
 before_install:
  - sudo apt-get update -qq
  - wget http://ftp.digitalmars.com/dmd_2.060-0_i386.deb
