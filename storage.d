@@ -13,11 +13,6 @@ class Account
 	this(string pass)
 	{
 		this.pass = pass;
-		// debug
-		this.contacts["group1"]["m1kc"] = "m1kc";
-		this.contacts["group1"]["solkin"] = "solkin";
-		this.contacts["group2"]["Ku-Kluks-Klan"] = "kkk";
-		this.contacts["group2"]["Упячка"] = "upyachka";
 	}
 }
 
@@ -35,6 +30,10 @@ void initStorage()
 			{
 				accounts[tmp[1]] = new Account(tmp[2]);
 			}
+			else if (tmp[0]=="contact")
+			{
+				accounts[tmp[1]].contacts[tmp[2]][tmp[3]] = tmp[4];
+			}
 		}
 		accounts.rehash();
 		writeln("ok");
@@ -44,18 +43,34 @@ void initStorage()
 		writeln("msimd.db was not found, skipped");
 		// debug
 		createAccount("m1kc", "112");
+		addContact("m1kc", "m1kc", "m1kc", "group1");
+		addContact("m1kc", "solkin", "Solkin", "group1");
+		addContact("m1kc", "kkk", "Ku-Kluks-Klan", "group2");
+		addContact("m1kc", "upyachka", "Упячка", "group2");
 		createAccount("solkin", "112");
+		addContact("solkin", "m1kc", "m1kc", "group1");
+		addContact("solkin", "solkin", "Solkin", "group1");
+		addContact("solkin", "kkk", "Ku-Kluks-Klan", "group2");
+		addContact("solkin", "upyachka", "Упячка", "group2");
 	}
 }
 
 void writeDB()
 {
+	// TODO: speed up
 	synchronized
 	{
 		if (exists("msimd.db")) std.file.remove("msimd.db");
 		foreach(string id, Account a; accounts)
 		{
 			append("msimd.db", "account|" ~ id ~ "|" ~ a.pass ~ "\n");
+			foreach(groupName, group; a.contacts)
+			{
+				foreach(string name, string value; group)
+				{
+					append("msimd.db", "contact|" ~ id ~ "|" ~ groupName ~ "|" ~ name ~ "|" ~ value ~ "\n");
+				}
+			}
 		}
 	}
 }
@@ -67,10 +82,10 @@ bool accountExists(string id)
 
 bool passwordIsValid(string id, string pass)
 {
-	writeln("passwordIsValid() call");
-	writeln("test: ", (((id in accounts) !is null) && (accounts[id].pass == pass)) );
-	writeln("ok, returning...");
-	scope(exit) writeln("exit");
+	//writeln("passwordIsValid() call");
+	//writeln("test: ", (((id in accounts) !is null) && (accounts[id].pass == pass)) );
+	//writeln("ok, returning...");
+	//scope(exit) writeln("exit");
 	return (((id in accounts) !is null) && (accounts[id].pass == pass));
 }
 
@@ -98,15 +113,18 @@ string getContactsAsIni(string id)
 void addContact(string account, string id, string name, string group)
 {
 	accounts[account].contacts[group][name] = id;
+	writeDB();
 }
 
 bool renameContact(string account, string id1, string id2)
 {
+	// TODO: fix protocol
 	return true;
 }
 
 bool removeContact(string account, string id)
 {
+	// TODO: fix protocol
 	return true;
 }
 
@@ -124,7 +142,7 @@ string getGroupsAsString(string account)
 
 bool groupExists(string account, string groupName)
 {
-	return true;
+	return ((groupName in accounts[account].contacts) !is null);
 }
 
 bool renameGroup(string account, string name1, string name2)
@@ -132,11 +150,13 @@ bool renameGroup(string account, string name1, string name2)
 	assert(name1 != name2);
 	accounts[account].contacts[name2] = accounts[account].contacts[name1];
 	accounts[account].contacts.remove(name1);
+	writeDB();
 	return true;
 }
 
 bool removeGroup(string account, string groupName)
 {
 	accounts[account].contacts.remove(groupName);
+	writeDB();
 	return true;
 }
