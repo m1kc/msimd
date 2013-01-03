@@ -1,4 +1,4 @@
-# msimd
+# msimd [![Build Status](https://travis-ci.org/m1kc/msimd.png?branch=master)](https://travis-ci.org/m1kc/msimd)
 
 An experimental mSIM server written in D.
 
